@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Bíblica - Centro de Vida</title>
+    <style>
+        :root {
+            --primary-color: #2b4c7e;
+            --secondary-color: #4a90e2;
+            --accent-color: #e67e22;
+            --bg-color: #f4f7f6;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Pantalla de Bienvenida */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .welcome-logo {
+            width: 130px;
+            height: 130px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        /* Cabecera del Juego Activo */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header-logo {
+            width: 45px;
+            height: 45px;
+        }
+
+        .header-logo img, .welcome-logo img {
+            width: 100%;
+            height: auto;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            margin-bottom: 25px;
+        }
+
+        /* Controles de Audio */
+        .audio-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .audio-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            background-color: #eef2f7;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-btn:hover {
+            background-color: #e0e6ed;
+        }
+
+        .status-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .clue-box {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--secondary-color);
+            text-align: left;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .word-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .letter-slot {
+            width: 35px;
+            height: 45px;
+            border-bottom: 3px solid var(--primary-color);
+            font-size: 28px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        button.key {
+            padding: 12px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.key:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        button.key:disabled {
+            background-color: #bdc3c7;
+            color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .message {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .success { color: #27ae60; animation: pop 0.3s ease; }
+        .error { color: #c0392b; animation: shake 0.3s ease; }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .action-btn:hover {
+            background-color: #d35400;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="audio-controls hidden" id="audio-panel">
+        <button class="audio-btn" id="music-btn" onclick="toggleMusic()" title="Música de fondo">🎵</button>
+    </div>
+
+    <!-- PANTALLA DE BIENVENIDA -->
+    <div id="welcome-screen" class="welcome-screen">
+        <div class="welcome-logo">
+            <img src="img/logo.png" alt="Logo Centro de Vida">
+        </div>
+        <h1>Centro de Vida</h1>
+        <div class="subtitle">Trivia Bíblica en Comunidad</div>
+        <button class="action-btn" onclick="startGame()">Comenzar a Jugar</button>
+    </div>
+
+    <!-- PANTALLA DEL JUEGO -->
+    <div id="game-screen" class="hidden">
+        <div class="header">
+            <div class="header-logo">
+                <img src="img/logo.png" alt="Logo Centro de Vida">
+            </div>
+            <h1>Centro de Vida</h1>
+        </div>
+        
+        <div class="status-panel">
+            <div id="score-display">Puntos: 0</div>
+            <div id="lives-display">Errores: 0 / 6</div>
+        </div>
+
+        <div class="clue-box">
+            <strong>Pista:</strong> <span id="clue-text">Cargando...</span>
+        </div>
+
+        <div class="word-display" id="word-container"></div>
+        <div class="keyboard" id="keyboard-container"></div>
+        <div class="message" id="message-text"></div>
+
+        <button class="action-btn hidden" id="next-btn" onclick="nextQuestion()">Siguiente Pregunta</button>
+    </div>
+</div>
+
+<audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+<script>
+    const dbBíblica = [
+        { pregunta: "Lugar donde Moisés recibió los Diez Mandamientos.", respuesta: "SINAI" },
+        { pregunta: "Primer libro del Nuevo Testamento.", respuesta: "MATEO" },
+        { pregunta: "Fue arrojado al foso de los leones por su fidelidad a Dios.", respuesta: "DANIEL" },
+        { pregunta: "Nombre del gigante filisteo que desafió al ejército de Israel.", respuesta: "GOLIAT" },
+        { pregunta: "El hombre más sabio de la Tierra, hijo del rey David.", respuesta: "SALOMON" },
+        { pregunta: "Río donde fue bautizado Jesús por Juan el Bautista.", respuesta: "JORDAN" },
+        { pregunta: "Esposa de Abraham y madre de Isaac.", respuesta: "SARA" },
+        { pregunta: "Discípulo que negó a Jesús tres veces antes de que cantara el gallo.", respuesta: "PEDRO" }
+    ];
+
+    let currentQuestionIndex = 0;
+    let guessedLetters = [];
+    let errors = 0;
+    let score = 0;
+    const maxErrors = 6;
+    let isTurnOver = false;
+    let isMusicPlaying = false;
+    let audioCtx = null;
+
+    const alphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
+
+    function initAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSound(type) {
+        initAudioContext();
+        if (!audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'success') {
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.25);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        } else if (type === 'victory') {
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.1);
+            osc.frequency.setValueAtTime(783.99, now + 0.2);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+    }
+
+    function toggleMusic() {
+        const music = document.getElementById("bg-music");
+        const btn = document.getElementById("music-btn");
+        
+        if (isMusicPlaying) {
+            music.pause();
+            btn.textContent = "🔇";
+            btn.style.backgroundColor = "#fce4e4";
+        } else {
+            music.play().catch(e => console.log("Interacción requerida"));
+            music.volume = 0.15;
+            btn.textContent = "🎵";
+            btn.style.backgroundColor = "#e8f5e9";
+        }
+        isMusicPlaying = !isMusicPlaying;
+    }
+
+    function startGame() {
+        initAudioContext();
+        document.getElementById("welcome-screen").classList.add("hidden");
+        document.getElementById("game-screen").classList.remove("hidden");
+        document.getElementById("audio-panel").classList.remove("hidden");
+        
+        dbBíblica.sort(() => Math.random() - 0.5);
+        loadQuestion();
+        setupPhysicalKeyboard();
+    }
+
+    function loadQuestion() {
+        guessedLetters = [];
+        errors = 0;
+        isTurnOver = false;
+        
+        document.getElementById("lives-display").textContent = `Errores: ${errors} / ${maxErrors}`;
+        document.getElementById("message-text").className = "message";
+        document.getElementById("message-text").textContent = "";
+        document.getElementById("next-btn").classList.add("hidden");
+
+        const currentData = dbBíblica[currentQuestionIndex];
+        document.getElementById("clue-text").textContent = currentData.pregunta;
+
+        renderWord();
+        renderKeyboard();
+    }
+
+    function renderWord() {
+        const container = document.getElementById("word-container");
+        container.innerHTML = "";
+        const word = dbBíblica[currentQuestionIndex].respuesta;
+
+        for (let letter of word) {
+            const slot = document.createElement("div");
+            slot.classList.add("letter-slot");
+            if (guessedLetters.includes(letter)) {
+                slot.textContent = letter;
+            } else {
+                slot.textContent = "";
+            }
+            container.appendChild(slot);
+        }
+    }
+
+    function renderKeyboard() {
+        const container = document.getElementById("keyboard-container");
+        container.innerHTML = "";
+
+        alphabet.forEach(letter => {
+            const button = document.createElement("button");
+            button.classList.add("key");
+            button.id = `key-${letter}`;
+            button.textContent = letter;
+            button.disabled = guessedLetters.includes(letter);
+            button.onclick = () => handleGuess(letter);
+            container.appendChild(button);
+        });
+    }
+
+    function setupPhysicalKeyboard() {
+        document.addEventListener("keydown", (event) => {
+            if (document.getElementById("game-screen").classList.contains("hidden")) return;
+
+            if (isTurnOver) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    nextQuestion();
+                }
+                return;
+            }
+
+            let keyPressed = event.key.toUpperCase();
+            if (alphabet.includes(keyPressed) && !guessedLetters.includes(keyPressed)) {
+                handleGuess(keyPressed);
+            }
+        });
+    }
+
+    function handleGuess(letter) {
+        if (isTurnOver) return;
+
+        guessedLetters.push(letter);
+        const word = dbBíblica[currentQuestionIndex].respuesta;
+
+        const btn = document.getElementById(`key-${letter}`);
+        if (btn) btn.disabled = true;
+
+        if (word.includes(letter)) {
+            playSound('success');
+            renderWord();
+            checkWin();
+        } else {
+            playSound('error');
+            errors++;
+            document.getElementById("lives-display").textContent = `Errores: ${errors} / ${maxErrors}`;
+            checkLose();
+        }
+    }
+
+    function checkWin() {
+        const word = dbBíblica[currentQuestionIndex].respuesta;
+        const hasWon = word.split("").every(letter => guessedLetters.includes(letter));
+
+        if (hasWon) {
+            score += 10;
+            document.getElementById("score-display").textContent = `Puntos: ${score}`;
+            const msg = document.getElementById("message-text");
+            msg.textContent = "¡Correcto! ¡Excelente conocimiento de la Palabra! 🎉";
+            msg.className = "message success";
+            endTurn();
+        }
+    }
+
+    function checkLose() {
+        if (errors >= maxErrors) {
+            const word = dbBíblica[currentQuestionIndex].respuesta;
+            const msg = document.getElementById("message-text");
+            msg.textContent = `¡Ánimo! La respuesta correcta era: ${word} 📖`;
+            msg.className = "message error";
+            
+            guessedLetters = word.split("");
+            renderWord();
+            endTurn();
+        }
+    }
+
+    function endTurn() {
+        isTurnOver = true;
+        const keys = document.querySelectorAll(".key");
+        keys.forEach(key => key.disabled = true);
+        document.getElementById("next-btn").classList.remove("hidden");
+        document.getElementById("next-btn").focus();
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < dbBíblica.length) {
+            loadQuestion();
+        } else {
+            playSound('victory');
+            document.getElementById("keyboard-container").innerHTML = "";
+            document.getElementById("word-container").innerHTML = "";
+            document.getElementById("clue-text").textContent = "¡Has completado toda la trivia!";
+            
+            const msg = document.getElementById("message-text");
+            msg.textContent = `Juego Terminado. Puntuación Final: ${score} puntos. ¡Dios bendiga a Centro de Vida! ✨`;
+            msg.className = "message success";
+            document.getElementById("next-btn").classList.add("hidden");
+        }
+    }
+</script>
+
+</body>
+</html>
